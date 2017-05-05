@@ -91,7 +91,7 @@ REST POST to DynamoDB via Lambda
 * Click: __Create Resource__
 * For __Integration type__ select: __Lambda Function Proxy__
 * Lambda Region: For example: __us-east-1__
-* Lambda Function: __marchio__
+* Lambda Function: __marchio-put__
 * Click: __Save__
 * Add Permission to Lambda Function: __OK__
 * Drop down: __Actions__
