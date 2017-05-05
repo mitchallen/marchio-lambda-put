@@ -1,0 +1,14 @@
+{
+  "name": "deploy-101",
+  "version": "1.0.0",
+  "description": "Example Lambda deployment",
+  "main": "lambda.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Mitch Allen",
+  "license": "MIT",
+  "dependencies": {
+    "marchio-lambda-put": "^0.1.0"
+  }
+}
