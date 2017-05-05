@@ -12,16 +12,17 @@
 
 var request = require('supertest'),
     should = require('should'),
-    modulePath = "../modules/index";
+    matrix = require('./matrix');
 
-describe('module factory smoke test', () => {
+var testMatrix = matrix.create({});
 
-    var _factory = null;
+var getRandomInt = function (min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+};
+
+describe('deployment smoke test', () => {
 
     before( done => {
-        // Call before all tests
-        delete require.cache[require.resolve(modulePath)];
-        _factory = require(modulePath);
         done();
     });
 
@@ -36,39 +37,108 @@ describe('module factory smoke test', () => {
     });
 
     afterEach( done => {
-        // Call after eeach test
+        // Call after each test
         done();
     });
 
-    it('module should exist', done => {
-        should.exist(_factory);
-        done();
-    });
+    ///////////////////////////////////////
+    // Test each service in a matrix
 
-    it('create method with no spec should return object', done => {
-        _factory.create()
-        .then(function(obj){
-            should.exist(obj);
-            done();
-        })
-        .catch( function(err) { 
-            console.error(err); 
-            done(err);  // to pass on err, remove err (done() - no arguments)
-        });
-    });
+    testMatrix.forEach(function (el) {
 
-    it('health method should return ok', done => {
-        _factory.create({})
-        .then(function(obj) {
-            return obj.health();
-        })
-        .then(function(result) {
-            result.should.eql("OK");
-            done();
-        })
-        .catch( function(err) { 
-            console.error(err);
-            done(err); 
+        var matrixKey = el.key,
+            service = el.service,
+            table = el.table,
+            _testPutHost = el.testPutHost,
+            _testPutPath = el.testPutPath,
+            _testGetHost = el.testGetHost,
+            _testGetPath = el.testGetPath,
+            _testPostHost = el.testPostHost,
+            _testPostPath = el.testPostPath;
+
+        describe(`lambda-dynamo: ${service}`, () => {
+
+            var _testModel = {
+                // name: 'beta',
+                name: table,
+                key: "eid", // Primary key field in DynamoDB
+                fields: {
+                    email:    { type: String, required: true },
+                    status:   { type: String, required: true, default: "NEW" },
+                    // In a real world example, password would be hashed by middleware before being saved
+                    password: { type: String, select: false },  // select: false, exclude from query results,
+                }
+            };
+
+            var _postUrl = `${_testPostPath}/${_testModel.name}`;
+            // console.log(`POST URL: ${_postUrl}`);
+
+            it('put should succeed', done => {
+                var testObject = {
+                    email: "test" + getRandomInt( 1000, 1000000) + "@smoketest.cloud",
+                    password: "fubar"
+                };
+                var testPutObject = {
+                    status: "UPDATE"
+                }
+                // console.log(`TEST HOST: ${_testPostHost} `);
+                // console.log(`TEST URL: ${_testPostHost}${_postUrl} `);
+                request(_testPostHost)
+                    .post(_postUrl)
+                    .send(testObject)
+                    .set('Content-Type', 'application/json')
+                    .expect(201)
+                    .expect('Content-Type', /json/)
+                    .expect('Location', /mldb/ )
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        // console.log("RESPONSE: ", res.body);
+                        res.body.email.should.eql(testObject.email);
+                        // Should not return password
+                        should.not.exist(res.body.password);
+                        res.body.status.should.eql("NEW");
+                        should.exist(res.body[_testModel.key]);
+                        res.header.location.should.eql(`/${_testModel.name}/${res.body[_testModel.key]}`)
+                        should.exist(res.body.eid);
+                        var _saveKey = res.body.eid;
+                        var _putUrl = `${_testPutPath}/${_testModel.name}/${_saveKey}`;
+                        // console.log("PUT URL: ", _getUrl );
+                        request(_testPutHost)
+                            .put(_putUrl)
+                            .send(testPutObject)
+                            .expect(204)
+                            .expect('Location', `/${_testModel.name}/${res.body.eid}` )
+                            .end(function (err, res) {
+                                should.not.exist(err);
+                                var _getUrl = `${_testGetPath}/${_testModel.name}/${_saveKey}`;
+                                request(_testGetHost)
+                                    .get(_getUrl)
+                                    .expect(200)
+                                    .end(function(err,res){
+                                         // console.log(res.body);
+                                        res.body.email.should.eql(testObject.email);
+                                        // Should not return password
+                                        should.not.exist(res.body.password);
+                                        res.body.status.should.eql(testPutObject.status);
+                                        should.exist(res.body.eid);
+                                        res.body.eid.should.eql(_saveKey);
+                                        done();
+                                    });
+                            });
+                    });
+            });
+
+            it('put with invalid model id in url should return 404', done => {
+                // console.log(`TEST HOST: ${_testPostHost} `);
+                var _invalidPutUrl = `${_testPutPath}/${_testModel.name}/bogus`;
+                request(_testPutHost)
+                    .put(_invalidPutUrl)
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .end(function (err, res) {
+                        done();
+                    });
+            });
         });
     });
 });
