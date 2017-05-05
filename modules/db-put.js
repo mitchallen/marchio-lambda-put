@@ -83,7 +83,7 @@ module.exports.create = ( spec ) => {
     ]).
     then( o => {
         recMgr = o;  
-        recMgr.build( req.body );   // build RECORD
+        recMgr.buildUpdate( req.body );   // build update record
     })
     .then( o => {
         var record = o;
@@ -123,6 +123,7 @@ module.exports.create = ( spec ) => {
         var putObject = {
             "TableName": model.name,
             "Key": _key,
+            "ConditionExpression": `attribute_exists(${primaryKey})`,
             "AttributeUpdates": _attrUpdates,
             "ExpressionAttributeNames": _expAttrNames   // object { '#email': "email" }
         };
