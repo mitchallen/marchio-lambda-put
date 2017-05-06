@@ -128,6 +128,50 @@ describe('deployment smoke test', () => {
                     });
             });
 
+            it('put should not set non-model field', done => {
+                var testObject = {
+                    email: "test" + getRandomInt( 1000, 1000000) + "@smoketest.cloud",
+                    password: "fubar"
+                };
+                var testPutObject = {
+                    status: "UPDATE",
+                    bogus: "This should not be added"
+                }
+                // console.log(`TEST HOST: ${_testPostHost} `);
+                // console.log(`TEST URL: ${_testPostHost}${_postUrl} `);
+                request(_testPostHost)
+                    .post(_postUrl)
+                    .send(testObject)
+                    .set('Content-Type', 'application/json')
+                    .expect(201)
+                    .expect('Content-Type', /json/)
+                    .expect('Location', /mldb/ )
+                    .end(function (err, res) {
+                        should.not.exist(err);
+                        // console.log("RESPONSE: ", res.body);
+                        var _saveKey = res.body.eid;
+                        var _putUrl = `${_testPutPath}/${_testModel.name}/${_saveKey}`;
+                        // console.log("PUT URL: ", _getUrl );
+                        request(_testPutHost)
+                            .put(_putUrl)
+                            .send(testPutObject)
+                            .expect(204)
+                            .expect('Location', `/${_testModel.name}/${res.body.eid}` )
+                            .end(function (err, res) {
+                                should.not.exist(err);
+                                var _getUrl = `${_testGetPath}/${_testModel.name}/${_saveKey}`;
+                                request(_testGetHost)
+                                    .get(_getUrl)
+                                    .expect(200)
+                                    .end(function(err,res){
+                                         // console.log(res.body);
+                                        should.not.exist(res.body.bogus);
+                                        done();
+                                    });
+                            });
+                    });
+            });
+
             it('put with invalid model id in url should return 404', done => {
                 // console.log(`TEST HOST: ${_testPostHost} `);
                 var _invalidPutUrl = `${_testPutPath}/${_testModel.name}/bogus`;
