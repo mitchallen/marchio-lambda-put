@@ -51,15 +51,15 @@ var putFactory = require('./db-put');
  * function fakeHash( record ) {
  *    // Not a real hash function - do not use in production
  *    return new Promise( (resolve, reject) => {
- *         if(!record) {
- *             return reject('record not defined');
- *         }
- *         if(!record.password) {
- *             return reject('record.password not defined');
- *         }
- *         // fake hashing - do not use in production
- *         record.password = '$' + getRandomInt(10000, 10000000);
- *         resolve(record);
+ *        if(!record) {
+ *            return reject('record not defined');
+ *        } 
+ *        if(record.password) {
+ *            // only update if value passed in
+ *            // fake hashing - do not use in production
+ *            record.password = '$' + getRandomInt(10000, 10000000);
+ *        }
+ *        resolve(record);
  *    });
  * }
  * 

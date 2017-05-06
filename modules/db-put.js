@@ -78,21 +78,21 @@ module.exports.create = ( spec ) => {
         throw new Error('dp-put: model.primary not defined.');
     }
 
-    return Promise.all([
-        crFactory.create( { model: model } )
-    ]).
-    then( o => {
+    return crFactory.create( { model: model } )
+    .then( o => {
         recMgr = o;  
-        recMgr.buildUpdate( req.body );   // build update record
+        return recMgr.buildUpdate( req.body );   // build update record
     })
     .then( o => {
         var record = o;
         if( ! record ) {    // record failed validation
-            return Promise.reject(404);
+            throw new Error('dp-put: record failed validation.');
+            // return Promise.reject(404);
         }
         var dbId = params.id;
         if(!dbId) {
-            return Promise.reject(404);
+            throw new Error('dp-put: dbId not found.');
+            // return Promise.reject(404);
         }
         record[primaryKey] = dbId;
         return Promise.all([
@@ -101,22 +101,34 @@ module.exports.create = ( spec ) => {
         ]);
     })
     .then( o => {
-        var record = o[0];
-        var dbId = o[1];
-        var _key = {};
+        var record = o[0],
+            dbId = o[1],
+            _key = {},
+            _updateExpression = "SET ",
+            _expAttrValues = {},
+            _expAttrNames = {},
+            pCount = 0;
+
         _key[ primaryKey ] = dbId;
-        var _attrUpdates = {};
-        var _expAttrNames = {};
 
         for (var property in record) { 
             if (record.hasOwnProperty(property)) {
+                if( property === primaryKey ) {
+                    /*
+                     * "One or more parameter values were invalid: Cannot update attribute eid. 
+                     * This attribute is part of the key","err":{"message":"One or more parameter 
+                     * values were invalid: Cannot update attribute eid. This attribute is part of the key"
+                     */
+                    continue;
+                }
+                pCount++;
                 var value = record[property];
-                 var _fldName = '#' + property;
-                 _expAttrNames[ _fldName ] = property;
-                _attrUpdates[ _fldName ] = { 
-                    "Action": "PUT",
-                    "Value": value
-                };
+                var _fldName = '#' + property;
+                var _fldLabel = ':' + property;
+                _updateExpression += pCount == 1 ? "" : ", ";
+                _updateExpression += `${_fldName} = ${_fldLabel}`;
+                _expAttrNames[ _fldName ] = property;
+                _expAttrValues[ _fldLabel ] = value;
             }
         }
 
@@ -124,11 +136,20 @@ module.exports.create = ( spec ) => {
             "TableName": model.name,
             "Key": _key,
             "ConditionExpression": `attribute_exists(${primaryKey})`,
-            "AttributeUpdates": _attrUpdates,
+            "UpdateExpression":  _updateExpression, // "SET #email = :email, #status = :status",
+            "ExpressionAttributeValues": _expAttrValues,
+            // "ExpressionAttributeValues": {
+            //     ":email": "myupdatetest@test.com",
+            //     ":status": "MOD_TEST"
+            // },
             "ExpressionAttributeNames": _expAttrNames   // object { '#email': "email" }
+            // "ExpressionAttributeNames": { 
+            //     '#email': "email",
+            //     '#status': "status",
+            // }
         };
         return Promise.all([
-                docClient.update( putObject ).promise(),
+                docClient.updateItem( putObject ).promise(),
                 Promise.resolve( dbId )
             ]);
     })
