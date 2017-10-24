@@ -71,7 +71,9 @@ exports.handler = function(event, context, callback) {
 
     var model = {
         name: 'mldb',   // must match DynamoDB table name
-        primary: 'eid', // primary key - cannot be reserved word (like uuid)
+        partition: 'eid', // primary partition key - cannot be reserved word (like uuid)
+        // sort: 'status',  // primary sort key
+        // recordMustExist: false, // default is false 
         fields: {
             email:    { type: String, required: true },
             status:   { type: String, required: true, default: "NEW" },

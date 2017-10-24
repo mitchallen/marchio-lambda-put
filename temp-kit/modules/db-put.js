@@ -134,7 +134,7 @@ module.exports.create = ( spec ) => {
         for (var property in record) { 
             if (record.hasOwnProperty(property)) {
 
-                if( property === partition || property === sort ) {
+                if( property === partition ) {
                     /*
                         * "One or more parameter values were invalid: Cannot update attribute eid. 
                         * This attribute is part of the key","err":{"message":"One or more parameter 
@@ -142,6 +142,15 @@ module.exports.create = ( spec ) => {
                         */
                     continue;
                 }
+
+                // if( property === partition || property === sort ) {
+                //     /*
+                //         * "One or more parameter values were invalid: Cannot update attribute eid. 
+                //         * This attribute is part of the key","err":{"message":"One or more parameter 
+                //         * values were invalid: Cannot update attribute eid. This attribute is part of the key"
+                //         */
+                //     continue;
+                // }
 
                 var _fldName = '#' + property;
                 var _fldLabel = ':' + property;
@@ -212,7 +221,6 @@ module.exports.create = ( spec ) => {
                     headers: {
                         "Content-Type": "application/json",
                         "x-marchio-error": err.message,
-                        "x-marchio-table": model.name,
                         "x-marchio-partition": params.partition,
                         "x-marchio-sort": params.sort
                     },

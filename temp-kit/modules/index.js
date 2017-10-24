@@ -67,9 +67,8 @@ var putFactory = require('./db-put');
  * 
  *     var model = {
  *         name: 'mldb',   // must match DynamoDB table name
- *         partition: 'eid', // primary partition key - cannot be reserved word (like uuid)
+ *         partition: 'eid', // primary paritition key - cannot be reserved word (like uuid)
  *         // sort: 'status',  // primary sort key
- *         // recordMustExist: false, // default is false 
  *         fields: {
  *             email:    { type: String, required: true },
  *             status:   { type: String, required: true, default: "NEW" },

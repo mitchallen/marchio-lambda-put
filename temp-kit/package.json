@@ -1,0 +1,41 @@
+{
+  "name": "marchio-lambda-put",
+  "version": "0.1.0",
+  "description": "REST PUT to DynamoDB via Lambda",
+  "main": "modules/index.js",
+  "scripts": {
+    "//": "To use: npm start (useful if not a module)",
+    "start": "node modules/index.js",
+    "test": "grunt && /usr/local/bin/mocha --recursive --timeout 20000",
+    "test-coverage": "./node_modules/.bin/istanbul cover _mocha -- -R spec test/**/*",
+    "test-nodemon": "nodemon /usr/local/bin/mocha --timeout 5000",
+    "test-debug": "nodemon /usr/local/bin/mocha -g '@DEBUG' --recursive --timeout 20000",
+    "test-jenkins": "grunt && /usr/local/bin/mocha --recursive --timeout 20000 -R xunit test/ > test-reports.xml",
+    "web-server": "python -m SimpleHTTPServer $PORT || 8000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mitchallen/marchio-lambda-put.git"
+  },
+  "author": "Mitch Allen <npm@mitchallen.com> (http://mitchallen.com)",
+  "license": "MIT",
+  "dependencies": {
+    "@mitchallen/lambda-adapter": "^0.3.0",
+    "dotenv": "^4.0.0",
+    "marchio-core-record": "^0.1.3"
+  },
+  "devDependencies": {
+    "babel-preset-es2015": "^6.18.0",
+    "babelify": "^7.3.0",
+    "grunt": "^1.0.1",
+    "grunt-bump": "^0.8.0",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-jsdoc-to-markdown": "^2.0.0",
+    "grunt-shell": "^1.3.0",
+    "grunt-upcoming": "^0.2.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^3.2.0",
+    "should": "^10.0.0",
+    "supertest": "^2.0.0"
+  }
+}

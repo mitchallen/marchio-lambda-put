@@ -103,7 +103,7 @@ REST PUT to DynamoDB via Lambda
 * Browse to: https://console.aws.amazon.com/dynamodb/
 * Click: __Create Table__
 * Table name: __mldb__
-* Primary key: __eid__
+* Primary partition key: __eid__
 * The type should be the default (string)
 * Click: __Create__
 * After some churning, click the __Capacity__ tab
@@ -215,7 +215,9 @@ exports.handler = function(event, context, callback) {
 
     var model = {
         name: 'mldb',   // must match DynamoDB table name
-        primary: 'eid', // primary key - cannot be reserved word (like uuid)
+        partition: 'eid', // primary partition key - cannot be reserved word (like uuid)
+        // sort: 'status',  // primary sort key
+        // recordMustExist: false, // default is false 
         fields: {
             email:    { type: String, required: true },
             status:   { type: String, required: true, default: "NEW" },
@@ -236,6 +238,7 @@ exports.handler = function(event, context, callback) {
     });
  };
 ```
+
 
 * * *
 
@@ -262,6 +265,13 @@ Add unit tests for any new or changed functionality. Lint and test your code.
 * * *
 
 ## Version History
+
+#### Version 0.2.0
+
+* changed primary model property to partition
+* added support for sort key 
+* added recordMustExist flag
+* new sort key tests will fail until post and get have sort supported added
 
 #### Version 0.1.0 
 

@@ -40,20 +40,22 @@ exports.handler = function(event, context, callback) {
 
     /*
 
-    curl -i -X PUT -H "Content-Type: application/json" \
-      -d '{ "status":"FOO" ,"email": "zoinks", "password": "zoinks" }' \
-      $AWS_HOST_MARCHIO_PUT/test/marchio-put/mldb/110ec58a-a0f2-4ac4-8393-c866d813b8d1/abcd123
+    curl -i -X PUT -H \"Content-Type: application/json\" \
+    -d '{\"email\":\"x@y.com\",\"status\":\"FUBAR\"}' \
+     $AWS_HOST_MARCHIO_PUT_SORT/test/marchio-put-sort/mldb-sort/abc/xyz"
+  },
 
     */
 
     var model = {
-        name: 'mldb',   // must match DynamoDB table name
+        name: 'mldb-sort',   // must match DynamoDB table name
         partition: 'eid',     // primary partition key - cannot be reserved word (like uuid)
-        // sort: 'email',        // primary sort key - DynamoDB sort key
-        // recordMustExist: false, // default is false // x-marchio-error: The conditional request failed
+        sort: 'gid',        // primary sort key - DynamoDB sort key
+        recordMustExist: false, // default is false // x-marchio-error: The conditional request failed
         fields: {
-            eid:      { type: String }, // partition key
-            email:    { type: String }, // sort key
+            eid:    { type: String }, // partition key
+            // gid:    { type: String }, // sort key
+            email:   { type: String, required: true },
             status:   { type: String, required: true, default: "NEW" },
             // In a real world example, password would be hashed by middleware before being saved
             password: { type: String, select: false }  // select: false, exclude from query results

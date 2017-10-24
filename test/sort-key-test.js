@@ -1,6 +1,6 @@
 /**
     Module: marchio-lambda-put
-      Test: smoke-test
+      Test: sort-key-test
     Author: Mitch Allen
 */
 
@@ -12,7 +12,7 @@
 
 var request = require('supertest'),
     should = require('should'),
-    matrix = require('./matrix');
+    matrix = require('./matrix-sort-key');
 
 var testMatrix = matrix.create({});
 
@@ -20,7 +20,7 @@ var getRandomInt = function (min, max) {
     return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
-describe('deployment smoke test', () => {
+describe('deployment sort key test', () => {
 
     before( done => {
         done();
@@ -62,8 +62,10 @@ describe('deployment smoke test', () => {
                 // name: 'beta',
                 name: table,
                 partition: "eid", // Primary key field in DynamoDB
+                sort: "gid",
                 fields: {
                     eid:      { type: String }, // parition key
+                    gid:      { type: String, required: true, default: "xyz" },
                     email:    { type: String, required: true },
                     status:   { type: String, required: true, default: "NEW" },
                     // In a real world example, password would be hashed by middleware before being saved
@@ -82,15 +84,15 @@ describe('deployment smoke test', () => {
                 var testPutObject = {
                     status: "UPDATE"
                 }
-                // console.log(`TEST HOST: ${_testPostHost} `);
-                // console.log(`TEST URL: ${_testPostHost}${_postUrl} `);
+                console.log(`TEST HOST: ${_testPostHost} `);
+                console.log(`TEST URL: ${_testPostHost}${_postUrl} `);
                 request(_testPostHost)
                     .post(_postUrl)
                     .send(testObject)
                     .set('Content-Type', 'application/json')
                     .expect(201)
                     .expect('Content-Type', /json/)
-                    .expect('Location', /mldb/ )
+                    .expect('Location', /mldb-sort/ )
                     .end(function (err, res) {
                         should.not.exist(err);
                         // console.log("RESPONSE: ", res.body);
@@ -146,7 +148,7 @@ describe('deployment smoke test', () => {
                     .set('Content-Type', 'application/json')
                     .expect(201)
                     .expect('Content-Type', /json/)
-                    .expect('Location', /mldb/ )
+                    .expect('Location', /mldb-sort/ )
                     .end(function (err, res) {
                         should.not.exist(err);
                         // console.log("RESPONSE: ", res.body);
