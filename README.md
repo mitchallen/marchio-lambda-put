@@ -135,7 +135,7 @@ To test:
 * Test the deployment using __curl__:
 
 ```
-$ curl -i -X PUT -H "Content-Type: application/json" -d '{"email":"test@beta.com"}' $AWS_HOST_MARCHIO_PUT/test/marchio-put/mldb/110ec58a-a0f2-4ac4-8393-c866d813b8d1
+$ curl -i -X PUT -H "Content-Type: application/json" -d '{"email":"test@beta.com"}' $AWS_HOST_MARCHIO_PUT/test/marchio-put/110ec58a-a0f2-4ac4-8393-c866d813b8d1
 ```
 * The response should contain a 204 status code.
 * Browse the DynamoDB table to see the updated record.
@@ -265,6 +265,11 @@ Add unit tests for any new or changed functionality. Lint and test your code.
 * * *
 
 ## Version History
+
+#### Version 0.3.0
+
+* removed model/table name from url
+* updated deploy-build examples
 
 #### Version 0.2.1
 

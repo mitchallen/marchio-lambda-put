@@ -73,7 +73,7 @@ describe('deployment sort key test', () => {
                 }
             };
 
-            var _postUrl = `${_testPostPath}/${_testModel.name}`;
+            var _postUrl = `${_testPostPath}`;
             // console.log(`POST URL: ${_postUrl}`);
 
             it('put should succeed', done => {

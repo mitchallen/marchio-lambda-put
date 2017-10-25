@@ -114,7 +114,7 @@ module.exports.create = (spec) => {
         return Promise.reject("model parameter not set");
     }
 
-    spec.regex = `/${spec.context.functionName}/:model/:partition/:sort?`;
+    spec.regex = `/${spec.context.functionName}/:partition/:sort?`;
 
     const marchio = spec;
 

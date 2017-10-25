@@ -71,7 +71,7 @@ describe('deployment smoke test', () => {
                 }
             };
 
-            var _postUrl = `${_testPostPath}/${_testModel.name}`;
+            var _postUrl = `${_testPostPath}`;
             // console.log(`POST URL: ${_postUrl}`);
 
             it('put should succeed', done => {
@@ -102,7 +102,7 @@ describe('deployment smoke test', () => {
                         res.header.location.should.eql(`/${_testModel.name}/${res.body[_testModel.partition]}`)
                         should.exist(res.body.eid);
                         var _saveKey = res.body.eid;
-                        var _putUrl = `${_testPutPath}/${_testModel.name}/${_saveKey}`;
+                        var _putUrl = `${_testPutPath}/${_saveKey}`;
                         // console.log("PUT URL: ", _getUrl );
                         request(_testPutHost)
                             .put(_putUrl)
@@ -111,7 +111,7 @@ describe('deployment smoke test', () => {
                             .expect('Location', `/${_testModel.name}/${res.body.eid}` )
                             .end(function (err, res) {
                                 should.not.exist(err);
-                                var _getUrl = `${_testGetPath}/${_testModel.name}/${_saveKey}`;
+                                var _getUrl = `${_testGetPath}/${_saveKey}`;
                                 request(_testGetHost)
                                     .get(_getUrl)
                                     .expect(200)
@@ -151,7 +151,7 @@ describe('deployment smoke test', () => {
                         should.not.exist(err);
                         // console.log("RESPONSE: ", res.body);
                         var _saveKey = res.body.eid;
-                        var _putUrl = `${_testPutPath}/${_testModel.name}/${_saveKey}`;
+                        var _putUrl = `${_testPutPath}/${_saveKey}`;
                         // console.log("PUT URL: ", _getUrl );
                         request(_testPutHost)
                             .put(_putUrl)
@@ -160,7 +160,7 @@ describe('deployment smoke test', () => {
                             .expect('Location', `/${_testModel.name}/${res.body.eid}` )
                             .end(function (err, res) {
                                 should.not.exist(err);
-                                var _getUrl = `${_testGetPath}/${_testModel.name}/${_saveKey}`;
+                                var _getUrl = `${_testGetPath}/${_saveKey}`;
                                 request(_testGetHost)
                                     .get(_getUrl)
                                     .expect(200)
@@ -175,7 +175,7 @@ describe('deployment smoke test', () => {
 
             it('put with invalid model id in url should return 404', done => {
                 // console.log(`TEST HOST: ${_testPostHost} `);
-                var _invalidPutUrl = `${_testPutPath}/${_testModel.name}/bogus`;
+                var _invalidPutUrl = `${_testPutPath}/bogus`;
                 request(_testPutHost)
                     .put(_invalidPutUrl)
                     .set('Content-Type', 'application/json')

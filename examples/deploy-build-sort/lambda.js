@@ -51,7 +51,7 @@ exports.handler = function(event, context, callback) {
         name: 'mldb-sort',   // must match DynamoDB table name
         partition: 'eid',     // primary partition key - cannot be reserved word (like uuid)
         sort: 'gid',        // primary sort key - DynamoDB sort key
-        recordMustExist: false, // default is false // x-marchio-error: The conditional request failed
+        // recordMustExist: false, // default is false // x-marchio-error: The conditional request failed
         fields: {
             eid:    { type: String }, // partition key
             // gid:    { type: String }, // sort key
