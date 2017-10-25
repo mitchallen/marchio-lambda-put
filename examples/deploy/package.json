@@ -10,6 +10,6 @@
   "author": "Mitch Allen",
   "license": "MIT",
   "dependencies": {
-    "marchio-lambda-put": "^0.2.0"
+    "marchio-lambda-put": "^0.3.0"
   }
 }
