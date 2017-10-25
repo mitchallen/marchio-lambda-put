@@ -1,6 +1,6 @@
 {
   "name": "marchio-lambda-put",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "REST PUT to DynamoDB via Lambda",
   "main": "modules/index.js",
   "scripts": {
