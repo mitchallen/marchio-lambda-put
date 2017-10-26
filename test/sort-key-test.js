@@ -58,34 +58,39 @@ describe('deployment sort key test', () => {
 
         describe(`lambda-dynamo: ${service}`, () => {
 
+            // console.log("MATRIX  vvvvv");
+            // console.log(JSON.stringify(el) );
+            // console.log("MATRIX  ^^^^^");
+
             var _testModel = {
-                // name: 'beta',
-                name: table,
-                partition: "eid", // Primary key field in DynamoDB
-                sort: "gid",
+                name: 'mldb-sort',   // must match DynamoDB table name
+                partition: 'eid',     // primary key - cannot be reserved word (like uuid)
+                sort: 'gid',
                 fields: {
-                    eid:      { type: String }, // parition key
-                    gid:      { type: String, required: true, default: "xyz" },
+                    eid:      { type: String },
+                    gid:      { type: String },
                     email:    { type: String, required: true },
                     status:   { type: String, required: true, default: "NEW" },
                     // In a real world example, password would be hashed by middleware before being saved
-                    password: { type: String, select: false },  // select: false, exclude from query results,
+                    password: { type: String, select: false }  // select: false, exclude from query results
                 }
             };
 
             var _postUrl = `${_testPostPath}`;
-            // console.log(`POST URL: ${_postUrl}`);
-
+        
             it('put should succeed', done => {
-                var testObject = {
+                const gidValue = "G456";
+                const testObject = {
+                    gid: gidValue,
                     email: "test" + getRandomInt( 1000, 1000000) + "@smoketest.cloud",
                     password: "fubar"
                 };
                 var testPutObject = {
                     status: "UPDATE"
                 }
-                console.log(`TEST HOST: ${_testPostHost} `);
-                console.log(`TEST URL: ${_testPostHost}${_postUrl} `);
+                // console.log(`TEST POST HOST: ${_testPostHost} `);
+                // console.log(`TEST POST URL: ${_testPostHost}${_postUrl} `);
+                // console.log("TEST OBJECT: " + JSON.stringify(testObject) );
                 request(_testPostHost)
                     .post(_postUrl)
                     .send(testObject)
@@ -104,8 +109,8 @@ describe('deployment sort key test', () => {
                         res.header.location.should.eql(`/${_testModel.name}/${res.body[_testModel.partition]}`)
                         should.exist(res.body.eid);
                         var _saveKey = res.body.eid;
-                        var _putUrl = `${_testPutPath}/${_testModel.name}/${_saveKey}`;
-                        // console.log("PUT URL: ", _getUrl );
+                        var _putUrl = `${_testPutPath}/${_saveKey}/${gidValue}`;
+                        // console.log("PUT URL: ", _putUrl );
                         request(_testPutHost)
                             .put(_putUrl)
                             .send(testPutObject)
@@ -113,7 +118,9 @@ describe('deployment sort key test', () => {
                             .expect('Location', `/${_testModel.name}/${res.body.eid}` )
                             .end(function (err, res) {
                                 should.not.exist(err);
-                                var _getUrl = `${_testGetPath}/${_testModel.name}/${_saveKey}`;
+                                var _getUrl = `${_testGetPath}/${_saveKey}/${gidValue}`;
+                                // console.log("GET HOST: ", _testGetHost);
+                                // console.log("GET URL: ", _getUrl);
                                 request(_testGetHost)
                                     .get(_getUrl)
                                     .expect(200)
@@ -132,7 +139,9 @@ describe('deployment sort key test', () => {
             });
 
             it('put should not set non-model field', done => {
+                const gidValue = "GABC123";
                 var testObject = {
+                    gid: gidValue,
                     email: "test" + getRandomInt( 1000, 1000000) + "@smoketest.cloud",
                     password: "fubar"
                 };
@@ -153,7 +162,7 @@ describe('deployment sort key test', () => {
                         should.not.exist(err);
                         // console.log("RESPONSE: ", res.body);
                         var _saveKey = res.body.eid;
-                        var _putUrl = `${_testPutPath}/${_testModel.name}/${_saveKey}`;
+                        var _putUrl = `${_testPutPath}/${_saveKey}/${gidValue}`;
                         // console.log("PUT URL: ", _getUrl );
                         request(_testPutHost)
                             .put(_putUrl)
@@ -162,7 +171,8 @@ describe('deployment sort key test', () => {
                             .expect('Location', `/${_testModel.name}/${res.body.eid}` )
                             .end(function (err, res) {
                                 should.not.exist(err);
-                                var _getUrl = `${_testGetPath}/${_testModel.name}/${_saveKey}`;
+                                var _getUrl = `${_testGetPath}/${_saveKey}/${gidValue}`;
+                                // console.log(_getUrl);
                                 request(_testGetHost)
                                     .get(_getUrl)
                                     .expect(200)
